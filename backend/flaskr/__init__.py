@@ -215,6 +215,12 @@ def create_app(test_config=None):
         })
 
     # Implements Error Handling for expected error scenarios
+    @app.errorhandler(400)
+    def bad_request(error):
+        return (jsonify({"success": False, "error": 400, "message": "bad request"}), 
+            400,
+        )
+    
     @app.errorhandler(404)
     def not_found(error):
         return (
@@ -229,10 +235,10 @@ def create_app(test_config=None):
             422,
         )
 
-    @app.errorhandler(400)
+    @app.errorhandler(500)
     def bad_request(error):
-        return (jsonify({"success": False, "error": 400, "message": "bad request"}), 
-            400,
+        return (jsonify({"success": False, "error": 500, "message": "internal server error"}), 
+            500,
         )
 
     return app
