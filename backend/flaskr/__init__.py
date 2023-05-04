@@ -158,17 +158,6 @@ def create_app(test_config=None):
 
     """
     @TODO:
-    Create a POST endpoint to get questions based on a search term.
-    It should return any questions for whom the search term
-    is a substring of the question.
-
-    TEST: Search by any phrase. The questions list will update to include
-    only question that include that string within their question.
-    Try using the word "title" to start.
-    """
-
-    """
-    @TODO:
     Create a GET endpoint to get questions based on category.
 
     TEST: In the "List" tab / main screen, clicking on one of the
@@ -205,6 +194,25 @@ def create_app(test_config=None):
     one question at a time is displayed, the user is allowed to answer
     and shown whether they were correct or not.
     """
+    @app.route("/quizzes", methods=["POST"])
+    def play_quizz():
+        body = request.get_json()
+        print(body)
+
+        previous_questions = body.get("previous_questions", None)
+        category = body.get("quiz_category", None)
+        category_id = category["id"]
+       
+        if category_id != 0:
+            selections = Question.query.filter(Question.id not in previous_questions).filter(Question.category == category["id"]).all()
+        else:
+            selections = Question.query.filter(Question.id not in previous_questions).all()
+
+        questions = [question.format() for question in selections]
+
+        return jsonify({
+            "question": questions[random.randint(0, len(questions))]
+        })
 
     # Implements Error Handling for expected error scenarios
     @app.errorhandler(404)
