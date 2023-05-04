@@ -9,6 +9,15 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+def get_and_format_categories():
+    selection = Category.query.order_by(Category.id).all()
+    #Format as one object with n keys rather than an array of n objects
+    categories = {}
+    for category in selection:
+        categories[category.id] = category.type
+    return categories
+
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
@@ -26,14 +35,10 @@ def create_app(test_config=None):
         return response
 
     @app.route("/categories")
-    def get_categories():
-        selection = Category.query.order_by(Category.id).all()
-        #Format as one object with n keys rather than an array of n objects
-        categories = {}
-        for category in selection:
-            categories[category.id] = category.type
+    def retrieve_categories():
+        categories = get_and_format_categories()
 
-        if len(selection) == 0:
+        if len(categories) == 0:
             abort(404)
 
         return jsonify(
