@@ -124,19 +124,37 @@ def create_app(test_config=None):
     @app.route("/questions", methods=["POST"])
     def create_question():
         body = request.get_json()
-        print(body)
-        new_question = body.get("question", None)
-        new_answer = body.get("answer", None)
-        new_difficulty = body.get("difficulty", None)
-        new_category = body.get("category", None)
 
-        if ((new_question is None) or (new_answer is None) or (new_difficulty is None) or (new_category is None)):
-            abort(400)
+        # Determine if we're searching or creating
+        search = body.get("searchTerm", None)
 
-        question = Question(question=new_question, answer=new_answer, difficulty=new_difficulty, category=new_category)
-        question.insert()
+        if search:
+            selection = Question.query.filter(Question.question.ilike("%{}%".format(search))).all()
 
-        return jsonify({})
+            if selection is None:
+                abort(404)
+
+            current_questions = paginate_questions(request, selection)
+
+            return jsonify({
+                "questions": current_questions,
+                "totalQuestions": len(selection),
+                "currentCategory": ""
+            })
+
+        else:
+            new_question = body.get("question", None)
+            new_answer = body.get("answer", None)
+            new_difficulty = body.get("difficulty", None)
+            new_category = body.get("category", None)
+
+            if ((new_question is None) or (new_answer is None) or (new_difficulty is None) or (new_category is None)):
+                abort(400)
+
+            question = Question(question=new_question, answer=new_answer, difficulty=new_difficulty, category=new_category)
+            question.insert()
+
+            return jsonify({})
 
     """
     @TODO:
