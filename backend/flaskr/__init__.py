@@ -9,6 +9,15 @@ from models import setup_db, Question, Category
 
 QUESTIONS_PER_PAGE = 10
 
+def paginate_questions(request, selection):
+    page = request.args.get("page", 1, type=int)
+    start = (page - 1) * QUESTIONS_PER_PAGE
+    end = start + QUESTIONS_PER_PAGE
+
+    questions = [question.format() for question in selection]
+    current_questions = questions[start:end]
+    return current_questions
+
 def get_and_format_categories():
     selection = Category.query.order_by(Category.id).all()
     #Format as one object with n keys rather than an array of n objects
@@ -59,6 +68,22 @@ def create_app(test_config=None):
     ten questions per page and pagination at the bottom of the screen for three pages.
     Clicking on the page numbers should update the questions.
     """
+    @app.route("/questions")
+    def retrieve_questions():
+        selection = Question.query.order_by(Question.id).all()
+        current_questions = paginate_questions(request, selection)
+
+        if len(current_questions) == 0:
+            abort(404)
+
+        return jsonify(
+            {
+                "questions": current_questions,
+                "total_Questions": len(selection),
+                "categories": get_and_format_categories(),
+                "currentCategory": ""
+            }
+        )
 
     """
     @TODO:
