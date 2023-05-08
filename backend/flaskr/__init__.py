@@ -136,6 +136,9 @@ def create_app(test_config=None):
 
             current_questions = paginate_questions(request, selection)
 
+            if len(current_questions) == 0:
+                abort(404)
+
             return jsonify({
                 "questions": current_questions,
                 "totalQuestions": len(selection),
@@ -197,22 +200,27 @@ def create_app(test_config=None):
     @app.route("/quizzes", methods=["POST"])
     def play_quizz():
         body = request.get_json()
-        print(body)
 
-        previous_questions = body.get("previous_questions", None)
-        category = body.get("quiz_category", None)
-        category_id = category["id"]
-       
-        if category_id != 0:
-            selections = Question.query.filter(Question.id not in previous_questions).filter(Question.category == category["id"]).all()
+        if body is not None:
+            previous_questions = body.get("previous_questions", None)
+            category = body.get("quiz_category", None)
+            if (category is not None) and (previous_questions is not None):
+                category_id = category["id"]
+            else:
+                abort(400)
+        
+            if category_id != 0:
+                selections = Question.query.filter(Question.id not in previous_questions).filter(Question.category == category["id"]).all()
+            else:
+                selections = Question.query.filter(Question.id not in previous_questions).all()
+
+            questions = [question.format() for question in selections]
+
+            return jsonify({
+                "question": questions[random.randint(0, len(questions)-1)]
+            })
         else:
-            selections = Question.query.filter(Question.id not in previous_questions).all()
-
-        questions = [question.format() for question in selections]
-
-        return jsonify({
-            "question": questions[random.randint(0, len(questions))]
-        })
+            abort(400)
 
     # Implements Error Handling for expected error scenarios
     @app.errorhandler(400)
