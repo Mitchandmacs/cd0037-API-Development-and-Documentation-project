@@ -79,7 +79,7 @@ def create_app(test_config=None):
         return jsonify(
             {
                 "questions": current_questions,
-                "total_Questions": len(selection),
+                "totalQuestions": len(selection),
                 "categories": get_and_format_categories(),
                 "currentCategory": ""
             }
@@ -107,7 +107,7 @@ def create_app(test_config=None):
             {
                 "deleted": question_id,
                 "questions": current_questions,
-                "total_questions": len(selection),
+                "totalQuestions": len(selection),
             }
         )
 
@@ -178,7 +178,7 @@ def create_app(test_config=None):
         return jsonify(
             {
                 "questions": current_questions,
-                "total_Questions": len(selection),
+                "totalQuestions": len(selection),
                 "currentCategory": category.type
             }
         )
