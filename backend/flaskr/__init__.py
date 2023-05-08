@@ -31,18 +31,25 @@ def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
     setup_db(app)
+    # @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
     CORS(app)
 
+    # @TODO: Use the after_request decorator to set Access-Control-Allow
     @app.after_request
     def after_request(response):
         response.headers.add(
             "Access-Control-Allow-Headers", "Content-Type,Authorization,true"
         )
         response.headers.add(
-            "Access-Control-Allow-Methods", "GET,PUT,POST,DELETE,OPTIONS"
+            "Access-Control-Allow-Methods", "GET,POST,DELETE"
         )
         return response
 
+    """
+    @TODO:
+    Create an endpoint to handle GET requests
+    for all available categories.
+    """
     @app.route("/categories")
     def retrieve_categories():
         categories = get_and_format_categories()
@@ -120,6 +127,16 @@ def create_app(test_config=None):
     TEST: When you submit a question on the "Add" tab,
     the form will clear and the question will appear at the end of the last page
     of the questions list in the "List" tab.
+
+    AND 
+
+    @TODO:
+    Create a POST endpoint to get questions based on a search term.
+    It should return any questions for whom the search term
+    is a substring of the question.
+    TEST: Search by any phrase. The questions list will update to include
+    only question that include that string within their question.
+    Try using the word "title" to start.
     """
     @app.route("/questions", methods=["POST"])
     def create_question():
@@ -222,7 +239,11 @@ def create_app(test_config=None):
         else:
             abort(400)
 
-    # Implements Error Handling for expected error scenarios
+    """
+    @TODO:
+    Create error handlers for all expected errors
+    including 404 and 422.
+    """
     @app.errorhandler(400)
     def bad_request(error):
         return (jsonify({"success": False, "error": 400, "message": "bad request"}), 
