@@ -38,6 +38,18 @@ psql trivia < trivia.psql
 
 ### Run the Server
 
+Before running the server you must create a `.env` file with the database configuration details in the `backend` directory.
+
+For the `trivia` database, with the default postgres configuration and recommended credentials for this course add the following to your `.env` file:
+
+```
+DB_NAME=trivia
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=student
+DB_PASS=student
+```
+
 From within the `backend` directory first ensure you are working using your created virtual environment.
 
 To run the server, execute:
