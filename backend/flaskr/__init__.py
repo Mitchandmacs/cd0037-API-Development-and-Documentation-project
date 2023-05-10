@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request, abort, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
 from flask_cors import CORS
 
 import random
@@ -243,14 +244,17 @@ def create_app(test_config=None):
             else:
                 abort(400)
 
+            filters = []
+            filters.append(Question.id.notin_(previous_questions))
             if category_id != 0:
-                selections = Question.query.filter(
-                                Question.id not in previous_questions).filter(
-                                    Question.category == category["id"]).all()
-            else:
-                selections = Question.query.filter(
-                                Question.id not in previous_questions
-                                ).all()
+                filters.append(Question.category == category["id"])
+
+            selections = Question.query.filter(and_(*filters)).all()
+
+            # If we've done all the questions from a category
+            # Return an empty object which will force the UI to end game
+            if len(selections) == 0:
+                return jsonify({})
 
             questions = [question.format() for question in selections]
 
